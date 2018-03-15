@@ -1,7 +1,7 @@
 ---
 output:
   word_document:
-    reference_docx: "template - Briefing note.docx"
+    reference_docx: "template.docx"
 
 ---
 
@@ -184,6 +184,6 @@ First line of report.
 
 ##`r format(as.Date(release_date,"%d %B %Y") - 1, format="%d %B %Y")`
 
-#### PRE-RELEASE STATISTICS - **OFFICIAL SENSITIVE** until `r release_date` at 09:30
+#### USE THIS AS A HEADER AND PAGE BREAK
 
 # INSERT COPY LIST HERE
