@@ -1,0 +1,189 @@
+---
+output:
+  word_document:
+    reference_docx: "template - Briefing note.docx"
+
+---
+
+
+
+```{r setup, include=FALSE, cache=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+
+wd <- getwd()
+
+
+```
+
+```{r include=FALSE, cache=FALSE}
+
+# Inputs - Change these for each new output
+author<-"Your Name"
+extension<-"#99999"
+current_quarter <- 2
+current_year <- 2017
+release_date <- "4 October 2017"
+
+
+# The next line calculates all the numbers and saves them as econ_data.txt. Comment it out avoid redownloading data unnecceserily.
+
+#source('calculate_number_for_gdp_report.r')
+
+#Load up the economic data
+econ_data<- read.csv("econ_data.txt",colClasses=c("character","character","character","character"))
+
+#Asign the variables
+scot_growth <- econ_data %>%
+  filter(Time=="Short term", 
+         Sector=="GDP") %>%
+  select(Scotland)
+
+uk_growth <- econ_data %>%
+  filter(Time=="Short term", 
+         Sector=="GDP") %>%
+  select(UK)
+
+service_growth <- econ_data %>%
+  filter(Time=="Short term",
+         Sector=="Services") %>%
+  select(Scotland)
+
+production_growth <- econ_data %>%
+  filter(Time=="Short term", 
+         Sector=="Production") %>%
+  select(Scotland)
+
+construction_growth <- econ_data %>%
+  filter(Time=="Short term", 
+         Sector=="Construction") %>%
+  select(Scotland)
+
+scot_year_growth <- econ_data %>%
+  filter(Time=="Medium term", 
+         Sector=="GDP") %>%
+  select(Scotland)
+
+uk_year_growth <- econ_data %>%
+  filter(Time=="Medium term", 
+         Sector=="GDP") %>%
+  select(UK)
+
+scot_gdp_per_pop <- econ_data %>%
+  filter(Time=="Medium term", 
+         Sector=="GDP per head") %>%
+  select(Scotland)
+
+uk_gdp_per_pop <- econ_data %>%
+  filter(Time=="Medium term", 
+         Sector=="GDP per head") %>%
+  select(UK)
+
+scot_4q <- econ_data %>%
+  filter(Time=="4Q", 
+         Sector=="GDP") %>%
+  select(Scotland)
+
+uk_4q <- econ_data %>%
+  filter(Time=="4Q", 
+         Sector=="GDP") %>%
+  select(UK)
+
+# Calculate which was the last quarter
+prev_quarter_number<-current_quarter-1
+if(prev_quarter_number==0){prev_quarter_number <- 4}
+
+# Make some nice formatted objected to insert into text
+this_quarter<- paste("Q",current_quarter,sep="")
+last_quarter<- paste("Q",prev_quarter_number,sep="")
+
+name_quarter <- function(quarter){
+  if(quarter==1){
+    paste("first")
+  } else if(quarter==2){
+    paste("second")
+  } else if(quarter==3){
+    paste("third")
+  } else if(quarter==4){
+    paste("fourth")
+  } else {
+    paste("###ERROR IN TEXT QUARTER")
+  }
+}
+
+text_quarter <- name_quarter(current_quarter)
+text_previous <- name_quarter(prev_quarter_number)
+
+if(current_quarter==1){
+   previous_quarters_year<-current_year-1
+} else {
+  previous_quarters_year<-current_year
+}
+
+last_year <- current_year - 1
+
+#Translate quarter to month range
+if(current_quarter==1){
+  month_range<-"January to March"
+} else if(current_quarter==2){
+  month_range<-"April to June"
+} else if(current_quarter==3){
+  month_range<-"July to September"
+} else if(current_quarter==4){
+  month_range<-"October to December"
+} else {
+  text_quarter<-"ERROR IN month_range"
+}
+
+describe_growth <- function(percentage){
+  if (percentage=="0.0" || percentage == "+0.0" || percentage == "-0.0"){
+    paste("remained flat (0.0% growth)",sep="")
+    } else if (as.numeric(percentage) > 0 ){
+    paste("grew by " , format(as.numeric(percentage),nsmall=1),"%",sep="")
+    } else if (as.numeric(percentage) < 0 ){
+    paste("contracted by ",
+          format(abs(as.numeric(percentage)),nsmall=1),"%",sep="")
+    } else {
+    paste("ERROR IN DIRECTION CODING!!!")
+    }
+}
+
+```
+#### USE THIS AS A HEADER AND PAGE BREAK
+
+First line of report.
+
+# REPORT NAME FOR THE DATE `r paste(current_year, this_quarter)`
+
+# Purpose
+
+###WHAT IS THE PURPOSE OF THIS REPORT
+
+# Priority
+
+###WHAT IS THE PRIORITY? The statistics will be published on `r release_date` at 09:30. 
+
+# Background
+
+###THIS REPORT DESCRIBES WHAT HAPPENED in the period from `r paste(month_range, current_year)`.
+
+# Key points
+
+###EXAMPLE OF TEXT AND CODE IN `r text_quarter` quarter of `r current_year` DESCRIBE CHANGE **`r describe_growth(scot_growth)`**. SECOND EXAMPLE **UK was `r paste(uk_growth %>% as.numeric() %>% format(nsmall=1),"%", " in ",current_year," ",this_quarter,sep="")`**.
+
+
+###ANOTHER EXAMPLE (i.e. `r paste(current_year, this_quarter,"vs",last_year,this_quarter)`), the Scottish economy `r describe_growth(scot_year_growth)`. Equivalent UK growth was `r uk_year_growth %>% as.numeric() %>% format(nsmall=1)`%.
+
+# Conclusion
+
+###**DESCRIBE WHO NEEDS TO NOTE THIS. The publication will be released on `r paste(weekdays(as.Date(release_date,"%d %B %Y")), release_date)` **
+
+#`r author`
+`r extension`
+
+##`r format(as.Date(release_date,"%d %B %Y") - 1, format="%d %B %Y")`
+
+#### PRE-RELEASE STATISTICS - **OFFICIAL SENSITIVE** until `r release_date` at 09:30
+
+# INSERT COPY LIST HERE
